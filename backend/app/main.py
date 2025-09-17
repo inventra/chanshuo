@@ -84,19 +84,34 @@ class DatabaseManager:
             await self.pool.close()
     
     async def get_connection(self):
-        if self.pool is None:
-            await self.create_pool()
-        return self.pool
+        try:
+            if self.pool is None:
+                await self.create_pool()
+            return self.pool
+        except Exception as e:
+            logger.error(f"❌ 獲取數據庫連接失敗: {str(e)}")
+            raise HTTPException(status_code=503, detail=f"數據庫服務不可用: {str(e)}")
 
 db_manager = DatabaseManager()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup
-    await db_manager.create_pool()
+    # Startup - 優雅處理數據庫連接
+    try:
+        await db_manager.create_pool()
+        logger.info("✅ 數據庫連接池創建成功")
+    except Exception as e:
+        logger.warning(f"⚠️ 數據庫連接失敗，以無數據庫模式運行: {str(e)}")
+        # 不阻止應用啟動，允許前端正常工作
+    
     yield
+    
     # Shutdown
-    await db_manager.close_pool()
+    try:
+        await db_manager.close_pool()
+        logger.info("✅ 數據庫連接池已關閉")
+    except Exception as e:
+        logger.warning(f"⚠️ 關閉數據庫連接池時出錯: {str(e)}")
 
 class HotelAPI:
     def __init__(self):
@@ -342,6 +357,82 @@ async def ping():
         "status": "🏕️ 蟬說露營區管理系統運行中",
         "timestamp": datetime.now().isoformat()
     }
+
+@app.post("/init-database")
+async def init_database():
+    """初始化數據庫表結構"""
+    try:
+        pool = await db_manager.get_connection()
+        async with pool.acquire() as conn:
+            # 創建房型表
+            await conn.execute("""
+                CREATE TABLE IF NOT EXISTS room_types (
+                    id SERIAL PRIMARY KEY,
+                    inv_type_code VARCHAR(10) NOT NULL,
+                    name VARCHAR(100) NOT NULL,
+                    total_rooms INTEGER NOT NULL DEFAULT 0,
+                    hotel_id VARCHAR(10) NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    UNIQUE(inv_type_code, hotel_id)
+                )
+            """)
+            
+            # 創建庫存數據表
+            await conn.execute("""
+                CREATE TABLE IF NOT EXISTS inventory_data (
+                    id SERIAL PRIMARY KEY,
+                    inv_type_code VARCHAR(10) NOT NULL,
+                    hotel_id VARCHAR(10) NOT NULL,
+                    date DATE NOT NULL,
+                    quantity INTEGER NOT NULL DEFAULT 0,
+                    status VARCHAR(10) NOT NULL CHECK (status IN ('OPEN', 'CLOSE')),
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    UNIQUE(inv_type_code, hotel_id, date)
+                )
+            """)
+            
+            # 創建週統計表
+            await conn.execute("""
+                CREATE TABLE IF NOT EXISTS weekly_statistics (
+                    id SERIAL PRIMARY KEY,
+                    inv_type_code VARCHAR(10) NOT NULL,
+                    hotel_id VARCHAR(10) NOT NULL,
+                    week_start_date DATE NOT NULL,
+                    week_end_date DATE NOT NULL,
+                    actual_occupancy_rate DECIMAL(5,2),
+                    actual_vacancy_rate DECIMAL(5,2),
+                    total_occupancy_rate DECIMAL(5,2),
+                    total_vacancy_rate DECIMAL(5,2),
+                    total_rooms INTEGER NOT NULL,
+                    total_available_days INTEGER NOT NULL,
+                    total_days INTEGER NOT NULL DEFAULT 7,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    UNIQUE(inv_type_code, hotel_id, week_start_date)
+                )
+            """)
+            
+            # 創建快照表
+            await conn.execute("""
+                CREATE TABLE IF NOT EXISTS inventory_snapshots (
+                    id SERIAL PRIMARY KEY,
+                    snapshot_date DATE NOT NULL,
+                    data_type VARCHAR(20) NOT NULL CHECK (data_type IN ('inventory', 'weekly_stats')),
+                    data JSONB NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
+            
+            logger.info("✅ 數據庫表結構初始化完成")
+            return {
+                "success": True,
+                "message": "數據庫表結構初始化成功",
+                "tables": ["room_types", "inventory_data", "weekly_statistics", "inventory_snapshots"]
+            }
+            
+    except Exception as e:
+        logger.error(f"❌ 數據庫初始化失敗: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"數據庫初始化失敗: {str(e)}")
 
 @app.get("/health")
 async def health_check():
