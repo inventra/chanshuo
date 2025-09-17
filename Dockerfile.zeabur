@@ -1,5 +1,6 @@
 # 🏕️ 蟬說露營區管理系統 - Zeabur全棧部署
 # Frontend + Backend in Single Container for Zeabur
+# Build Version: 2025-09-17-403-fix - 強制重建解決權限問題
 
 # ==========================================
 # 階段1: 構建React前端
@@ -124,6 +125,17 @@ echo "✅ Environment variables mapped successfully"\n\
 echo "📍 DB: $DB_HOST:$DB_PORT/$DB_NAME"\n\
 echo "👤 API User: $API_USERNAME"\n\
 echo "🏨 Hotel Code: $API_HOTEL_CODE"\n\
+\n\
+# 強制設置前端文件權限 (解決403問題)\n\
+echo "🔧 Setting up frontend file permissions..."\n\
+chmod -R 755 /var/www/html\n\
+chown -R www-data:www-data /var/www/html\n\
+ls -la /var/www/html/index.html || echo "⚠️ index.html not found"\n\
+echo "✅ Frontend permissions set: $(ls -ld /var/www/html)"\n\
+\n\
+# 測試前端文件可讀性\n\
+echo "🧪 Testing frontend file accessibility..."\n\
+test -r /var/www/html/index.html && echo "✅ index.html is readable" || echo "❌ index.html is not readable"\n\
 \n\
 # 啟動supervisor\n\
 echo "🚀 Starting Supervisor with all services..."\n\
