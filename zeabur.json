@@ -1,0 +1,25 @@
+{
+  "name": "chanshuo-camping-management",
+  "description": "🏕️ 蟬說露營區管理系統 - 全棧Dashboard與API",
+  "dockerfile": "Dockerfile.zeabur",
+  "ports": [
+    {
+      "port": 80,
+      "type": "HTTP"
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production",
+    "REACT_APP_API_URL": "/api"
+  },
+  "volumes": [],
+  "services": [
+    {
+      "name": "chanshuo-app",
+      "dockerfile": "Dockerfile.zeabur",
+      "environment": {
+        "NODE_ENV": "production"
+      }
+    }
+  ]
+}

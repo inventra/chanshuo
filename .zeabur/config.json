@@ -1,0 +1,9 @@
+{
+  "build": {
+    "dockerfile": "Dockerfile.zeabur"
+  },
+  "deploy": {
+    "type": "dockerfile",
+    "dockerfile": "Dockerfile.zeabur"
+  }
+}
