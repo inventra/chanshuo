@@ -1,0 +1,56 @@
+# 蟬說露營區管理系統 - 環境變量配置示例
+# 複製此文件為 .env 並填入實際值
+
+# ===================
+# 資料庫配置
+# ===================
+DATABASE_URL=postgresql://username:password@localhost:5432/chanshuo_camping
+
+# ===================
+# 外部API配置 (Shalom PMS)
+# ===================
+API_HOTEL_CODE=2436
+API_USERNAME=your_api_username
+API_PASSWORD=your_api_password
+
+# ===================
+# 服務配置
+# ===================
+# 調試模式 (開發時設為True，生產環境設為False)
+DEBUG=True
+
+# 服務器端口 (預設8000)
+PORT=8000
+
+# 允許跨域來源 (開發時可設為*)
+CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+
+# ===================
+# 安全配置
+# ===================
+# JWT密鑰 (生產環境請使用複雜的隨機字符串)
+SECRET_KEY=your-super-secret-key-here
+
+# ===================
+# 日誌配置
+# ===================
+# 日誌級別 (DEBUG, INFO, WARNING, ERROR)
+LOG_LEVEL=INFO
+
+# ===================
+# 快照配置
+# ===================
+# 快照保留天數
+SNAPSHOT_RETENTION_DAYS=90
+
+# 自動快照間隔(小時)
+AUTO_SNAPSHOT_INTERVAL=24
+
+# ===================
+# 週更新配置
+# ===================
+# 自動週更新時間 (cron格式: 分 時 日 月 週)
+WEEKLY_UPDATE_CRON=0 2 * * 1
+
+# 週更新數據範圍(週數)
+WEEKLY_UPDATE_WEEKS=26

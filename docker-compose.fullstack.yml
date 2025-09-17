@@ -1,0 +1,80 @@
+version: '3.8'
+
+services:
+  # 🏕️ 蟬說露營區 - 全棧應用
+  chanshuo-fullstack:
+    build:
+      context: .
+      dockerfile: Dockerfile.fullstack
+      args:
+        - NODE_ENV=production
+    container_name: chanshuo-fullstack
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    environment:
+      # 後端API配置
+      - DATABASE_URL=${DATABASE_URL}
+      - API_HOTEL_CODE=${API_HOTEL_CODE:-2436}
+      - API_USERNAME=${API_USERNAME}
+      - API_PASSWORD=${API_PASSWORD}
+      - DEBUG=false
+      - LOG_LEVEL=INFO
+      - PORT=8000
+      - TZ=Asia/Taipei
+      
+      # 前端配置
+      - REACT_APP_API_URL=/api
+      - GENERATE_SOURCEMAP=false
+    volumes:
+      # 日誌持久化
+      - fullstack_logs:/var/log
+      - app_logs:/app/logs
+    networks:
+      - chanshuo_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # 🗄️ PostgreSQL 資料庫 (獨立容器)
+  postgres:
+    image: postgres:15-alpine
+    container_name: chanshuo-postgres-fullstack
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-chanshuo_camping}
+      POSTGRES_USER: ${POSTGRES_USER:-chanshuo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secure_password}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_fullstack_data:/var/lib/postgresql/data/pgdata
+      - ./backend/database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./backend/database/snapshot_schema.sql:/docker-entrypoint-initdb.d/02-snapshot.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - chanshuo_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-chanshuo} -d ${POSTGRES_DB:-chanshuo_camping}"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+# 🌐 網路配置
+networks:
+  chanshuo_network:
+    driver: bridge
+    name: chanshuo_fullstack_network
+
+# 💾 持久化存儲
+volumes:
+  postgres_fullstack_data:
+    name: chanshuo_postgres_fullstack_data
+  fullstack_logs:
+    name: chanshuo_fullstack_logs
+  app_logs:
+    name: chanshuo_app_logs

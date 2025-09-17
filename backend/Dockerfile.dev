@@ -1,0 +1,58 @@
+# 🏕️ 蟬說露營區管理系統 - 開發環境Docker配置
+FROM python:3.11.9-slim
+
+# 設置工作目錄
+WORKDIR /app
+
+# 設置開發環境變量
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PORT=8000 \
+    TZ=Asia/Taipei \
+    PYTHONPATH=/app
+
+# 安裝系統依賴和開發工具
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    curl \
+    vim \
+    git \
+    tzdata \
+    postgresql-client \
+    && ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone \
+    && rm -rf /var/lib/apt/lists/*
+
+# 創建應用用戶和目錄
+RUN useradd --create-home --shell /bin/bash dev_user && \
+    mkdir -p /app/logs /app/uploads && \
+    chown -R dev_user:dev_user /app
+
+# 複製requirements.txt並安裝Python依賴
+COPY requirements.txt .
+
+# 安裝開發依賴
+RUN echo "# 開發環境額外依賴" >> requirements.dev.txt && \
+    echo "watchdog==3.0.0" >> requirements.dev.txt && \
+    echo "python-multipart==0.0.6" >> requirements.dev.txt && \
+    echo "pytest==7.4.4" >> requirements.dev.txt && \
+    echo "pytest-asyncio==0.23.2" >> requirements.dev.txt && \
+    echo "black==23.12.1" >> requirements.dev.txt && \
+    echo "flake8==6.1.0" >> requirements.dev.txt
+
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt && \
+    pip install --no-cache-dir -r requirements.dev.txt
+
+# 切換到開發用戶
+USER dev_user
+
+# 暴露端口
+EXPOSE $PORT
+
+# 健康檢查
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost:$PORT/health || exit 1
+
+# 開發模式啟動命令 (支持自動重載)
+CMD ["sh", "-c", "cd app && uvicorn main:app --host 0.0.0.0 --port $PORT --reload --log-level debug"]

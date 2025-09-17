@@ -1,0 +1,112 @@
+version: '3.8'
+
+services:
+  # 🏕️ 蟬說露營區 - 後端API服務
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: chanshuo-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://chanshuo:secure_password@postgres:5432/chanshuo_camping
+      - API_HOTEL_CODE=${API_HOTEL_CODE:-2436}
+      - API_USERNAME=${API_USERNAME}
+      - API_PASSWORD=${API_PASSWORD}
+      - DEBUG=false
+      - LOG_LEVEL=INFO
+      - CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+    volumes:
+      - api_logs:/app/logs
+      - api_uploads:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - chanshuo_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # 🗄️ PostgreSQL 資料庫
+  postgres:
+    image: postgres:15-alpine
+    container_name: chanshuo-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: chanshuo_camping
+      POSTGRES_USER: chanshuo
+      POSTGRES_PASSWORD: secure_password
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/pgdata
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./database/snapshot_schema.sql:/docker-entrypoint-initdb.d/02-snapshot.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - chanshuo_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U chanshuo -d chanshuo_camping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # 📊 Redis 快取服務 (可選)
+  redis:
+    image: redis:7-alpine
+    container_name: chanshuo-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - chanshuo_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    command: redis-server --appendonly yes
+
+  # 🔍 Nginx 反向代理 (可選)
+  nginx:
+    image: nginx:alpine
+    container_name: chanshuo-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - api
+    networks:
+      - chanshuo_network
+    profiles:
+      - production
+
+# 🌐 網路配置
+networks:
+  chanshuo_network:
+    driver: bridge
+    name: chanshuo_network
+
+# 💾 持久化存儲
+volumes:
+  postgres_data:
+    name: chanshuo_postgres_data
+  redis_data:
+    name: chanshuo_redis_data
+  api_logs:
+    name: chanshuo_api_logs
+  api_uploads:
+    name: chanshuo_api_uploads

@@ -1,0 +1,123 @@
+# 🏕️ 蟬說露營區管理系統 - Zeabur全棧部署
+# Frontend + Backend in Single Container for Zeabur
+
+# ==========================================
+# 階段1: 構建React前端
+# ==========================================
+FROM node:18-alpine AS frontend-builder
+
+WORKDIR /frontend
+
+# 複製前端package.json
+COPY front-end/hotel-dashboard/package*.json ./
+
+# 安裝依賴
+RUN npm ci --only=production --silent
+
+# 複製前端源代碼
+COPY front-end/hotel-dashboard/ ./
+
+# 設置前端環境變量 (Zeabur生產環境)
+ENV NODE_ENV=production
+ENV REACT_APP_API_URL=/api
+ENV GENERATE_SOURCEMAP=false
+
+# 構建前端
+RUN npm run build
+
+# ==========================================
+# 階段2: Python後端環境
+# ==========================================
+FROM python:3.11.9-slim AS backend-builder
+
+WORKDIR /backend
+
+# 安裝編譯依賴
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
+
+# 安裝Python依賴
+COPY backend/requirements.txt ./
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+# ==========================================
+# 階段3: 最終運行環境
+# ==========================================
+FROM python:3.11.9-slim
+
+# 安裝運行時依賴
+RUN apt-get update && apt-get install -y \
+    nginx \
+    supervisor \
+    curl \
+    tzdata \
+    && rm -rf /var/lib/apt/lists/* \
+    && rm -f /etc/nginx/sites-enabled/default
+
+# 設置時區
+ENV TZ=Asia/Taipei
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+# 複製Python環境
+COPY --from=backend-builder /usr/local/lib/python3.11/site-packages/ /usr/local/lib/python3.11/site-packages/
+COPY --from=backend-builder /usr/local/bin/ /usr/local/bin/
+
+# 設置工作目錄
+WORKDIR /app
+
+# 複製後端代碼
+COPY backend/app/ ./backend/app/
+COPY backend/database/ ./backend/database/
+COPY backend/data/ ./backend/data/
+
+# 複製前端構建文件
+COPY --from=frontend-builder /frontend/build/ /var/www/html/
+
+# 複製配置文件
+COPY nginx.zeabur.conf /etc/nginx/sites-available/default
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# 創建必要目錄
+RUN mkdir -p /app/logs /var/log/supervisor
+
+# 創建非root用戶
+RUN useradd --create-home --shell /bin/bash app_user && \
+    chown -R app_user:app_user /app
+
+# 設置環境變量
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+# Zeabur會自動設置PORT環境變量，我們需要適配
+RUN echo '#!/bin/bash\n\
+# 設置默認端口\n\
+export PORT=${PORT:-80}\n\
+echo "🚀 Starting services on port $PORT"\n\
+\n\
+# 更新Nginx配置中的端口\n\
+sed -i "s/listen 80;/listen $PORT;/" /etc/nginx/sites-available/default\n\
+\n\
+# 確保環境變量傳遞給supervisor\n\
+export DATABASE_URL="${DATABASE_URL}"\n\
+export API_HOTEL_CODE="${API_HOTEL_CODE}"\n\
+export API_USERNAME="${API_USERNAME}"\n\
+export API_PASSWORD="${API_PASSWORD}"\n\
+export DEBUG="${DEBUG:-false}"\n\
+export LOG_LEVEL="${LOG_LEVEL:-INFO}"\n\
+\n\
+# 啟動supervisor\n\
+exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf' > /start.sh && \
+    chmod +x /start.sh
+
+# 暴露端口 (Zeabur會動態分配)
+EXPOSE 80
+
+# 健康檢查
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:${PORT:-80}/health || exit 1
+
+# 啟動命令
+CMD ["/start.sh"]

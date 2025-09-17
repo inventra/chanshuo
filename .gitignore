@@ -1,0 +1,112 @@
+# 🏕️ 蟬說露營區管理系統 - Git忽略文件
+
+# ===================
+# Python
+# ===================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+
+# ===================
+# Node.js / React
+# ===================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# 打包輸出
+build/
+dist/
+
+# ===================
+# 環境變量和密鑰
+# ===================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.zeabur
+
+# ===================
+# 操作系統
+# ===================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+
+# ===================
+# IDE和編輯器
+# ===================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ===================
+# 日誌文件
+# ===================
+*.log
+logs/
+log/
+
+# ===================
+# 資料庫
+# ===================
+*.db
+*.sqlite
+*.sqlite3
+
+# ===================
+# 暫存和測試文件
+# ===================
+tmp/
+temp/
+.cache/
+.pytest_cache/
+coverage/
+.coverage
+.nyc_output
+
+# ===================
+# Docker
+# ===================
+.dockerignore
+
+# ===================
+# 備份文件
+# ===================
+*.bak
+*.backup
+*.old
+
+# ===================
+# 項目特定
+# ===================
+# Excel文件的暫存版本
+~$*.xlsx
+~$*.xls
+
+# 測試數據
+test_data/
+mock_data/

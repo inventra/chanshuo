@@ -1,0 +1,105 @@
+# 🏕️ 蟬說露營區管理系統 - 全棧Docker配置
+# Frontend + Backend in Single Container
+
+# ==========================================
+# 階段1: 構建React前端
+# ==========================================
+FROM node:18-alpine AS frontend-builder
+
+WORKDIR /frontend
+
+# 複製前端代碼
+COPY front-end/hotel-dashboard/package*.json ./
+RUN npm ci --only=production
+
+COPY front-end/hotel-dashboard/ ./
+
+# 設置前端環境變量
+ENV REACT_APP_API_URL=
+ENV GENERATE_SOURCEMAP=false
+
+# 構建前端靜態文件
+RUN npm run build
+
+# ==========================================
+# 階段2: 設置Python後端
+# ==========================================
+FROM python:3.11.9-slim AS backend-setup
+
+WORKDIR /backend
+
+# 安裝系統依賴
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# 複製並安裝Python依賴
+COPY backend/requirements.txt ./
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+# 複製後端代碼
+COPY backend/app/ ./app/
+COPY backend/database/ ./database/
+COPY backend/data/ ./data/
+
+# ==========================================
+# 階段3: 最終運行環境 - Nginx + Python
+# ==========================================
+FROM python:3.11.9-slim
+
+# 安裝Nginx、Supervisor和其他必要工具
+RUN apt-get update && apt-get install -y \
+    nginx \
+    supervisor \
+    curl \
+    tzdata \
+    && rm -rf /var/lib/apt/lists/*
+
+# 設置時區
+ENV TZ=Asia/Taipei
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+# 創建應用目錄
+WORKDIR /app
+
+# 從backend-setup階段複製Python環境和代碼
+COPY --from=backend-setup /usr/local/lib/python3.11/site-packages/ /usr/local/lib/python3.11/site-packages/
+COPY --from=backend-setup /usr/local/bin/ /usr/local/bin/
+COPY --from=backend-setup /backend/ ./backend/
+
+# 從frontend-builder階段複製構建的前端文件
+COPY --from=frontend-builder /frontend/build/ /var/www/html/
+
+# 創建Nginx配置
+RUN rm -f /etc/nginx/sites-enabled/default
+COPY nginx.conf /etc/nginx/sites-available/chanshuo
+RUN ln -s /etc/nginx/sites-available/chanshuo /etc/nginx/sites-enabled/
+
+# 創建Supervisor配置
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# 創建日誌目錄
+RUN mkdir -p /app/logs /var/log/supervisor
+
+# 創建非root用戶
+RUN useradd --create-home --shell /bin/bash app_user && \
+    chown -R app_user:app_user /app && \
+    chown -R app_user:app_user /var/www/html
+
+# 設置環境變量
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PORT=8000
+
+# 暴露端口
+EXPOSE 80
+
+# 健康檢查
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost/api/health || exit 1
+
+# 啟動命令 - 使用Supervisor管理Nginx和Python
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]

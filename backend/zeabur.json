@@ -1,0 +1,22 @@
+{
+  "name": "chanshuo-camping-backend",
+  "build": {
+    "commands": [
+      "pip install --upgrade pip",
+      "pip install -r requirements.txt"
+    ]
+  },
+  "run": {
+    "command": "cd app && uvicorn main:app --host 0.0.0.0 --port $PORT"
+  },
+  "environment": {
+    "PYTHON_VERSION": "3.11.9",
+    "PORT": "8000"
+  },
+  "healthcheck": {
+    "path": "/health",
+    "interval": 30,
+    "timeout": 10,
+    "retries": 3
+  }
+}
