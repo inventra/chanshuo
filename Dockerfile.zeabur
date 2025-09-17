@@ -11,8 +11,8 @@ WORKDIR /frontend
 # 複製前端package.json
 COPY front-end/hotel-dashboard/package*.json ./
 
-# 安裝依賴
-RUN npm ci --only=production --silent
+# 安裝依賴 (包含devDependencies，React構建需要)
+RUN npm ci --silent
 
 # 複製前端源代碼
 COPY front-end/hotel-dashboard/ ./
