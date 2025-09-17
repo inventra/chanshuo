@@ -1,0 +1,481 @@
+/* 全局響應式設計 CSS */
+
+/* ========== 斷點定義 ========== */
+/* xs: <576px, sm: ≥576px, md: ≥768px, lg: ≥992px, xl: ≥1200px, xxl: ≥1600px */
+
+/* ========== 基礎響應式類 ========== */
+.responsive-container {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.responsive-card {
+  margin-bottom: 16px;
+}
+
+.responsive-space {
+  gap: 8px;
+}
+
+/* ========== 手機端優化 (xs: <576px) ========== */
+@media (max-width: 575px) {
+  /* 容器間距調整 */
+  .ant-layout-content {
+    padding: 8px !important;
+    margin: 4px !important;
+  }
+
+  /* 卡片優化 */
+  .ant-card {
+    margin-bottom: 12px;
+  }
+  
+  .ant-card-head {
+    padding: 0 12px;
+    min-height: 40px;
+  }
+  
+  .ant-card-body {
+    padding: 12px;
+  }
+
+  /* 表格響應式 */
+  .ant-table-wrapper {
+    overflow-x: auto;
+  }
+  
+  .ant-table {
+    min-width: 600px;
+  }
+  
+  .ant-table-thead > tr > th {
+    padding: 8px 4px;
+    font-size: 12px;
+  }
+  
+  .ant-table-tbody > tr > td {
+    padding: 8px 4px;
+    font-size: 12px;
+  }
+
+  /* 按鈕組優化 */
+  .ant-btn {
+    min-width: auto;
+    height: 32px;
+    padding: 0 8px;
+    font-size: 12px;
+  }
+  
+  .ant-btn-sm {
+    height: 28px;
+    padding: 0 6px;
+    font-size: 11px;
+  }
+
+  /* 輸入框優化 */
+  .ant-select,
+  .ant-picker,
+  .ant-input {
+    height: 32px;
+    font-size: 14px;
+  }
+
+  /* 統計卡片 */
+  .ant-statistic-title {
+    font-size: 12px;
+  }
+  
+  .ant-statistic-content-value {
+    font-size: 18px;
+  }
+
+  /* 標題優化 */
+  h1, .ant-typography h1 {
+    font-size: 20px !important;
+  }
+  
+  h2, .ant-typography h2 {
+    font-size: 18px !important;
+  }
+  
+  h3, .ant-typography h3 {
+    font-size: 16px !important;
+  }
+
+  /* 圖表容器 */
+  .recharts-wrapper {
+    font-size: 11px;
+  }
+  
+  .recharts-cartesian-axis-tick-value {
+    font-size: 10px;
+  }
+
+  /* 隱藏不重要的元素 */
+  .mobile-hidden {
+    display: none !important;
+  }
+  
+  /* 手機端全寬 */
+  .mobile-full-width {
+    width: 100% !important;
+  }
+}
+
+/* ========== 平板端優化 (sm: 576px-767px) ========== */
+@media (min-width: 576px) and (max-width: 767px) {
+  .ant-layout-content {
+    padding: 16px !important;
+    margin: 8px !important;
+  }
+
+  .ant-card-body {
+    padding: 16px;
+  }
+
+  .ant-btn {
+    height: 36px;
+    padding: 0 12px;
+  }
+
+  .ant-table-thead > tr > th,
+  .ant-table-tbody > tr > td {
+    padding: 10px 6px;
+    font-size: 13px;
+  }
+}
+
+/* ========== 小型桌面 (md: 768px-991px) ========== */
+@media (min-width: 768px) and (max-width: 991px) {
+  .ant-layout-content {
+    padding: 20px !important;
+    margin: 12px !important;
+  }
+}
+
+/* ========== 大型桌面 (lg: ≥992px) ========== */
+@media (min-width: 992px) {
+  .ant-layout-content {
+    padding: 24px !important;
+    margin: 16px !important;
+  }
+}
+
+/* ========== 超大屏幕 (xl: ≥1200px) ========== */
+@media (min-width: 1200px) {
+  .ant-layout-content {
+    padding: 32px !important;
+    margin: 24px !important;
+  }
+  
+  .responsive-container {
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+}
+
+/* ========== 圖表響應式 ========== */
+.responsive-chart {
+  width: 100%;
+  height: 300px;
+}
+
+@media (max-width: 575px) {
+  .responsive-chart {
+    height: 200px;
+  }
+  
+  .ant-statistic {
+    text-align: center;
+  }
+}
+
+@media (min-width: 576px) and (max-width: 767px) {
+  .responsive-chart {
+    height: 250px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .responsive-chart {
+    height: 350px;
+  }
+}
+
+/* ========== 特殊響應式組件 ========== */
+/* 響應式表格 */
+.responsive-table {
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+@media (max-width: 575px) {
+  .responsive-table .ant-table-pagination {
+    text-align: center;
+  }
+  
+  .responsive-table .ant-pagination-item {
+    min-width: 32px;
+    height: 32px;
+    line-height: 30px;
+  }
+}
+
+/* 響應式間距 */
+.responsive-margin-bottom {
+  margin-bottom: 24px;
+}
+
+@media (max-width: 575px) {
+  .responsive-margin-bottom {
+    margin-bottom: 16px;
+  }
+}
+
+@media (max-width: 767px) {
+  .responsive-margin-bottom {
+    margin-bottom: 20px;
+  }
+}
+
+/* 響應式文字大小 */
+.responsive-text {
+  font-size: 14px;
+}
+
+@media (max-width: 575px) {
+  .responsive-text {
+    font-size: 12px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .responsive-text {
+    font-size: 16px;
+  }
+}
+
+/* ========== 2x2 網格佈局優化 ========== */
+.grid-2x2-container {
+  width: 100%;
+}
+
+.grid-2x2-item {
+  transition: all 0.3s ease;
+  cursor: pointer;
+  height: 140px; /* 統一卡片高度 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.grid-2x2-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15) !important;
+}
+
+.grid-2x2-item .ant-card {
+  height: 100%;
+  width: 100%;
+}
+
+.grid-2x2-item .ant-card-body {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px 16px !important;
+}
+
+/* 統計卡片漸變背景 */
+.stat-card-gradient-1 {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.stat-card-gradient-2 {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.stat-card-gradient-3 {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.stat-card-gradient-4 {
+  background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+}
+
+/* 統一響應式字體大小 */
+.stat-title-unified {
+  font-size: 13px;
+  color: rgba(255,255,255,0.9);
+  margin-bottom: 8px;
+  text-align: center;
+  line-height: 1.3;
+  font-weight: 500;
+}
+
+.stat-value-unified {
+  font-size: 30px;
+  font-weight: bold;
+  line-height: 1.1;
+  color: white;
+  text-align: center;
+  margin: 4px 0;
+}
+
+.stat-prefix-unified {
+  font-size: 26px;
+  margin-bottom: 6px;
+  text-align: center;
+  line-height: 1;
+}
+
+.stat-suffix-unified {
+  font-size: 18px;
+  font-weight: normal;
+  margin-left: 2px;
+}
+
+/* 手機端統一尺寸 */
+@media (max-width: 575px) {
+  .grid-2x2-item {
+    height: 120px; /* 手機端統一高度 */
+    margin-bottom: 16px;
+  }
+  
+  .stat-title-unified {
+    font-size: 11px;
+    margin-bottom: 4px;
+  }
+  
+  .stat-value-unified {
+    font-size: 24px;
+    margin: 2px 0;
+  }
+  
+  .stat-prefix-unified {
+    font-size: 20px;
+    margin-bottom: 4px;
+  }
+  
+  .stat-suffix-unified {
+    font-size: 14px;
+  }
+  
+  .grid-2x2-item .ant-card-body {
+    padding: 14px 10px !important;
+  }
+}
+
+/* 平板端統一尺寸 */
+@media (min-width: 576px) and (max-width: 767px) {
+  .grid-2x2-item {
+    height: 130px;
+    margin-bottom: 18px;
+  }
+  
+  .stat-title-unified {
+    font-size: 12px;
+    margin-bottom: 6px;
+  }
+  
+  .stat-value-unified {
+    font-size: 27px;
+    margin: 3px 0;
+  }
+  
+  .stat-prefix-unified {
+    font-size: 23px;
+    margin-bottom: 5px;
+  }
+  
+  .stat-suffix-unified {
+    font-size: 16px;
+  }
+}
+
+/* 桌面端統一尺寸 */
+@media (min-width: 768px) and (max-width: 1199px) {
+  .grid-2x2-item {
+    height: 135px;
+    margin-bottom: 20px;
+  }
+  
+  .stat-value-unified {
+    font-size: 29px;
+  }
+  
+  .stat-prefix-unified {
+    font-size: 25px;
+  }
+}
+
+/* 大屏幕統一尺寸 */
+@media (min-width: 1200px) {
+  .grid-2x2-item {
+    height: 150px;
+    margin-bottom: 24px;
+  }
+  
+  .stat-title-unified {
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+  
+  .stat-value-unified {
+    font-size: 34px;
+    margin: 6px 0;
+  }
+  
+  .stat-prefix-unified {
+    font-size: 30px;
+    margin-bottom: 8px;
+  }
+  
+  .stat-suffix-unified {
+    font-size: 20px;
+  }
+}
+
+/* ========== 工具類 ========== */
+.text-center-mobile {
+  text-align: left;
+}
+
+@media (max-width: 575px) {
+  .text-center-mobile {
+    text-align: center;
+  }
+}
+
+.flex-column-mobile {
+  display: flex;
+  flex-direction: row;
+}
+
+@media (max-width: 575px) {
+  .flex-column-mobile {
+    flex-direction: column;
+  }
+}
+
+/* ========== 動畫優化 ========== */
+@media (max-width: 575px) {
+  .ant-card,
+  .ant-btn,
+  .ant-select,
+  .ant-picker {
+    transition: all 0.2s ease;
+  }
+}
+
+/* ========== 無障礙優化 ========== */
+@media (max-width: 575px) {
+  .ant-btn,
+  .ant-select-selector,
+  .ant-picker {
+    min-height: 44px; /* 符合觸控目標最小尺寸 */
+  }
+}

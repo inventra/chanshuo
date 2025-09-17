@@ -1,0 +1,154 @@
+/* 主要佈局樣式 */
+.logo {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 16px;
+  border-radius: 8px;
+  transition: all 0.3s;
+}
+
+.logo:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.logo-icon {
+  font-size: 24px;
+  margin-right: 8px;
+  animation: pulse 2s infinite;
+}
+
+/* 動畫效果 */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* 菜單項目樣式 */
+.ant-menu-dark.ant-menu-inline .ant-menu-item-selected {
+  background-color: #1890ff !important;
+  border-radius: 6px;
+  margin: 0 8px;
+  width: calc(100% - 16px);
+}
+
+.ant-menu-dark .ant-menu-item:hover {
+  background-color: rgba(24, 144, 255, 0.2) !important;
+  border-radius: 6px;
+  margin: 0 8px;
+  width: calc(100% - 16px);
+}
+
+/* 側邊欄樣式 */
+.ant-layout-sider {
+  background: linear-gradient(180deg, #001529 0%, #002140 100%) !important;
+}
+
+/* 響應式設計 */
+/* 手機端 - 小於576px */
+@media (max-width: 576px) {
+  .logo {
+    margin: 4px;
+    height: 56px;
+  }
+  
+  .logo-icon {
+    font-size: 20px;
+    margin-right: 4px;
+  }
+  
+  .ant-layout-header {
+    padding: 0 12px !important;
+    height: 56px !important;
+    line-height: 56px !important;
+  }
+  
+  .ant-layout-header h3 {
+    font-size: 16px !important;
+    margin: 0 !important;
+  }
+  
+  .ant-layout-content {
+    margin: 8px !important;
+    padding: 12px !important;
+    border-radius: 8px !important;
+  }
+  
+  .ant-layout-sider {
+    width: 200px !important;
+    min-width: 200px !important;
+  }
+  
+  .ant-layout-sider-collapsed {
+    width: 60px !important;
+    min-width: 60px !important;
+  }
+  
+  /* 隱藏手機端不重要的元素 */
+  .mobile-hidden {
+    display: none !important;
+  }
+}
+
+/* 平板端 - 576px到768px */
+@media (min-width: 577px) and (max-width: 768px) {
+  .logo {
+    margin: 8px;
+    height: 60px;
+  }
+  
+  .ant-layout-header {
+    padding: 0 16px !important;
+    height: 60px !important;
+    line-height: 60px !important;
+  }
+  
+  .ant-layout-header h3 {
+    font-size: 18px !important;
+  }
+  
+  .ant-layout-content {
+    margin: 16px !important;
+    padding: 16px !important;
+  }
+}
+
+/* 桌面端優化 - 大於1200px */
+@media (min-width: 1200px) {
+  .ant-layout-content {
+    margin: 24px !important;
+    padding: 32px !important;
+  }
+  
+  .logo {
+    margin: 20px;
+  }
+}
+
+/* 自定義滾動條 */
+.ant-layout-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.ant-layout-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.ant-layout-content::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.ant-layout-content::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}

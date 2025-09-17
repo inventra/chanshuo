@@ -1,0 +1,244 @@
+/* 全域樣式重置和配置 */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f5f5f5;
+}
+
+.App {
+  text-align: left;
+}
+
+/* 自定義滾動條樣式 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Ant Design 組件自定義樣式 */
+.ant-card {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.09);
+  border-radius: 8px;
+  transition: box-shadow 0.3s ease;
+}
+
+.ant-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.ant-card-head {
+  border-bottom: 1px solid #f0f0f0;
+  min-height: 48px;
+}
+
+.ant-card-head-title {
+  font-weight: 600;
+}
+
+.ant-statistic-content {
+  font-weight: 600;
+}
+
+.ant-table-thead > tr > th {
+  background-color: #fafafa;
+  font-weight: 600;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.ant-table-tbody > tr:hover > td {
+  background-color: #f5f5f5;
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+  .ant-col {
+    margin-bottom: 16px;
+  }
+  
+  .ant-card {
+    margin-bottom: 16px;
+  }
+  
+  .ant-statistic {
+    text-align: center;
+  }
+}
+
+/* 圖表容器樣式 */
+.chart-container {
+  width: 100%;
+  height: 300px;
+  padding: 16px;
+}
+
+/* 加載動畫 */
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+}
+
+/* 自定義按鈕樣式 */
+.ant-btn-primary {
+  background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%);
+  border: none;
+  box-shadow: 0 2px 4px rgba(24, 144, 255, 0.3);
+}
+
+.ant-btn-primary:hover {
+  background: linear-gradient(135deg, #40a9ff 0%, #1890ff 100%);
+  box-shadow: 0 4px 8px rgba(24, 144, 255, 0.4);
+}
+
+/* 標籤樣式增強 */
+.ant-tag {
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+/* 進度條樣式 */
+.ant-progress-inner {
+  border-radius: 4px;
+}
+
+/* 模態框樣式 */
+.ant-modal-content {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.ant-modal-header {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+/* 選擇器樣式 */
+.ant-select-selector {
+  border-radius: 6px;
+}
+
+.ant-select-dropdown {
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* 日期選擇器樣式 */
+.ant-picker {
+  border-radius: 6px;
+}
+
+.ant-picker-dropdown {
+  border-radius: 6px;
+}
+
+/* 錯誤頁面樣式 */
+.error-page {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 50vh;
+  color: #8c8c8c;
+}
+
+.error-page h2 {
+  margin-bottom: 16px;
+}
+
+/* 空狀態樣式 */
+.empty-state {
+  padding: 40px 20px;
+  text-align: center;
+  color: #8c8c8c;
+}
+
+/* 動畫效果 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* 工具提示樣式 */
+.ant-tooltip-inner {
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+/* 表格優化 */
+.ant-table-container {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.ant-table-pagination {
+  margin: 16px 0;
+}
+
+/* 統計卡片特殊樣式 */
+.statistic-card {
+  text-align: center;
+  padding: 20px;
+}
+
+.statistic-card .ant-statistic-title {
+  margin-bottom: 8px;
+  color: #8c8c8c;
+  font-size: 14px;
+}
+
+.statistic-card .ant-statistic-content {
+  font-size: 24px;
+  line-height: 1.2;
+}
+
+/* 趨勢指示器 */
+.trend-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+}
+
+.trend-up {
+  color: #52c41a;
+}
+
+.trend-down {
+  color: #f5222d;
+}
+
+.trend-stable {
+  color: #faad14;
+}
