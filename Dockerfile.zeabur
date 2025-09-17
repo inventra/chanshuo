@@ -100,13 +100,24 @@ echo "🚀 Starting services on port $PORT"\n\
 # 更新Nginx配置中的端口\n\
 sed -i "s/listen 80;/listen $PORT;/" /etc/nginx/sites-available/default\n\
 \n\
-# 確保環境變量傳遞給supervisor\n\
-export DATABASE_URL="${DATABASE_URL}"\n\
-export API_HOTEL_CODE="${API_HOTEL_CODE}"\n\
-export API_USERNAME="${API_USERNAME}"\n\
-export API_PASSWORD="${API_PASSWORD}"\n\
-export DEBUG="${DEBUG:-false}"\n\
-export LOG_LEVEL="${LOG_LEVEL:-INFO}"\n\
+# 映射 Zeabur 環境變量到後端期望的變量名\n\
+echo "🔧 Mapping Zeabur environment variables..."\n\
+export DB_HOST="${ENV_DB_HOST:-localhost}"\n\
+export DB_PORT="${ENV_DB_PORT:-5432}"\n\
+export DB_USER="${ENV_DB_USER:-postgres}"\n\
+export DB_PASSWORD="${ENV_DB_PASSWORD:-password}"\n\
+export DB_NAME="${ENV_DB_NAME:-hotel_management}"\n\
+export API_USERNAME="${ENV_API_USERNAME:-woorao}"\n\
+export API_PASSWORD="${ENV_API_PASSWORD:-mz9k8czQHqnFt8Q}"\n\
+export API_ECHO_TOKEN="${ENV_API_ECHO_TOKEN:-GD837Fjk3}"\n\
+export API_HOTEL_CODE="${ENV_API_HOTEL_CODE:-2436}"\n\
+export DEBUG="${ENV_DEBUG:-false}"\n\
+export LOG_LEVEL="${ENV_LOG_LEVEL:-INFO}"\n\
+\n\
+echo "✅ Environment variables mapped successfully"\n\
+echo "📍 DB: $DB_HOST:$DB_PORT/$DB_NAME"\n\
+echo "👤 API User: $API_USERNAME"\n\
+echo "🏨 Hotel Code: $API_HOTEL_CODE"\n\
 \n\
 # 啟動supervisor\n\
 exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf' > /start.sh && \
