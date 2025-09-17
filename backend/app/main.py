@@ -461,6 +461,87 @@ async def health_check():
         logger.error(f"Health check failed: {str(e)}")
         return {"status": "unhealthy", "error": str(e)}
 
+@app.get("/debug-system")
+async def debug_system():
+    """系統調試信息 - 檢查前端文件、權限、配置等"""
+    import os
+    import stat
+    import platform
+    
+    debug_info = {
+        "timestamp": datetime.now().isoformat(),
+        "system": {
+            "platform": platform.platform(),
+            "python_version": platform.python_version(),
+            "hostname": platform.node()
+        },
+        "frontend_files": {},
+        "permissions": {},
+        "environment": {}
+    }
+    
+    # 檢查前端文件
+    frontend_path = "/var/www/html"
+    try:
+        if os.path.exists(frontend_path):
+            debug_info["frontend_files"]["directory_exists"] = True
+            debug_info["frontend_files"]["directory_stats"] = {
+                "owner": os.stat(frontend_path).st_uid,
+                "group": os.stat(frontend_path).st_gid,
+                "permissions": oct(os.stat(frontend_path).st_mode)[-3:]
+            }
+            
+            # 檢查index.html
+            index_path = os.path.join(frontend_path, "index.html")
+            if os.path.exists(index_path):
+                index_stat = os.stat(index_path)
+                debug_info["frontend_files"]["index_html"] = {
+                    "exists": True,
+                    "size": index_stat.st_size,
+                    "owner": index_stat.st_uid,
+                    "group": index_stat.st_gid,
+                    "permissions": oct(index_stat.st_mode)[-3:],
+                    "readable": os.access(index_path, os.R_OK),
+                    "content_preview": ""
+                }
+                
+                # 讀取文件前50個字符
+                try:
+                    with open(index_path, 'r', encoding='utf-8') as f:
+                        content = f.read(100)
+                        debug_info["frontend_files"]["index_html"]["content_preview"] = content
+                except Exception as e:
+                    debug_info["frontend_files"]["index_html"]["read_error"] = str(e)
+            else:
+                debug_info["frontend_files"]["index_html"] = {"exists": False}
+            
+            # 列出目錄內容
+            try:
+                files = os.listdir(frontend_path)
+                debug_info["frontend_files"]["directory_contents"] = files[:20]  # 只取前20個文件
+            except Exception as e:
+                debug_info["frontend_files"]["list_error"] = str(e)
+        else:
+            debug_info["frontend_files"]["directory_exists"] = False
+    except Exception as e:
+        debug_info["frontend_files"]["error"] = str(e)
+    
+    # 檢查環境變量
+    env_vars = ["NODE_ENV", "REACT_APP_API_URL", "DEBUG", "LOG_LEVEL"]
+    for var in env_vars:
+        debug_info["environment"][var] = os.getenv(var, "not_set")
+    
+    # 檢查nginx進程
+    try:
+        import subprocess
+        result = subprocess.run(['ps', 'aux'], capture_output=True, text=True)
+        nginx_processes = [line for line in result.stdout.split('\n') if 'nginx' in line]
+        debug_info["nginx_processes"] = len(nginx_processes)
+    except Exception as e:
+        debug_info["nginx_check_error"] = str(e)
+    
+    return debug_info
+
 @app.get("/room-types")
 async def get_room_types(hotel_id: Optional[str] = Query(None, description="酒店ID，不指定則返回所有酒店的房型")):
     pool = await db_manager.get_connection()
