@@ -334,16 +334,41 @@ app.add_middleware(
 async def root():
     return {"message": "Hotel Management API"}
 
+@app.get("/ping")
+async def ping():
+    """最簡單的連接測試 - 不依賴任何外部服務"""
+    return {
+        "message": "pong", 
+        "status": "🏕️ 蟬說露營區管理系統運行中",
+        "timestamp": datetime.now().isoformat()
+    }
+
 @app.get("/health")
 async def health_check():
+    """基礎健康檢查 - 不依賴數據庫"""
     try:
-        pool = await db_manager.get_connection()
-        async with pool.acquire() as conn:
-            await conn.fetchval("SELECT 1")
-        return {"status": "healthy", "database": "connected"}
+        # 基礎服務檢查
+        basic_status = {
+            "status": "healthy", 
+            "service": "蟬說露營區管理系統",
+            "timestamp": datetime.now().isoformat()
+        }
+        
+        # 嘗試數據庫連接檢查（可選）
+        try:
+            pool = await db_manager.get_connection()
+            async with pool.acquire() as conn:
+                await conn.fetchval("SELECT 1")
+            basic_status["database"] = "connected"
+        except Exception as db_error:
+            logger.warning(f"Database connection failed: {str(db_error)}")
+            basic_status["database"] = "disconnected"
+            basic_status["database_error"] = str(db_error)
+        
+        return basic_status
     except Exception as e:
         logger.error(f"Health check failed: {str(e)}")
-        return {"status": "unhealthy", "database": "disconnected", "error": str(e)}
+        return {"status": "unhealthy", "error": str(e)}
 
 @app.get("/room-types")
 async def get_room_types(hotel_id: Optional[str] = Query(None, description="酒店ID，不指定則返回所有酒店的房型")):
