@@ -28,8 +28,35 @@
 ```
 
 **推送時輸入：**
-- Username: `WuWunKai`
-- Password: `[貼上您的 Personal Access Token]`
+- Username: `inventra`
+- Password: `[貼上您的 Classic Personal Access Token]`
+
+---
+
+## ⚠️ Token 類型重要說明
+
+### Classic Token vs Fine-grained Token
+- ✅ **Classic Token**: `ghp_xxxxxxxxxxxx` (推薦)
+  - 簡單易用，適用於所有倉庫
+  - 權限管理較簡單
+- ❌ **Fine-grained Token**: `github_pat_xxxxxxx` (需特殊設置)
+  - 需要明確授權特定倉庫
+  - 權限管理更複雜
+
+### 如果您有 Fine-grained Token
+```bash
+# 建議：創建新的 Classic Token
+🌐 https://github.com/settings/tokens
+➕ Generate new token (classic)
+✅ 勾選: repo
+📋 格式: ghp_xxxxxxxxxxxx
+
+# 或者：授權 Fine-grained Token
+🌐 https://github.com/settings/personal-access-tokens/fine-grained
+🔧 編輯您的 Token
+➕ 添加目標倉庫
+✅ 設置權限: Contents (Read and write)
+```
 
 ---
 
@@ -44,8 +71,8 @@ git config --global credential.helper
 
 ### 更新用戶信息（可選）
 ```bash
-git config --global user.name "WuWunKai"
-git config --global user.email "your.email@example.com"
+git config --global user.name "inventra"
+git config --global user.email "kevin@inventra.com.tw"
 ```
 
 ### 設置憑證助手
@@ -116,6 +143,7 @@ git push origin main
 - 🚀 **推送腳本**: `push-to-github.sh`
 - 🔧 **修復腳本**: `fix-github.sh`
 - 🧪 **測試腳本**: `test-github-token.sh`
+- ⭐ **Classic Token 測試**: `test-classic-token.sh` (推薦)
 
 ---
 
@@ -125,7 +153,10 @@ git push origin main
 A: 確認 Token 以 `ghp_` 開頭，權限包含 `repo`
 
 ### Q: 推送被拒絕？
-A: 確認倉庫存在，用戶名正確 (`WuWunKai`)
+A: 確認倉庫存在，用戶名正確 (`inventra`)
+
+### Q: Permission denied to inventra?
+A: 可能是 Fine-grained Token 問題，建議創建 Classic Token
 
 ### Q: 每次都要輸入 Token？
 A: 確認已設置 `credential.helper store`
