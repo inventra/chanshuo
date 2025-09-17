@@ -91,26 +91,13 @@ RUN useradd --create-home --shell /bin/bash app_user && \
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
-# Zeabur會自動設置PORT環境變量，我們需要適配
+# 簡化的Zeabur啟動腳本 - 固定使用8080端口
 RUN echo '#!/bin/bash\n\
 set -e\n\
 \n\
-# 設置默認端口\n\
-export PORT=${PORT:-80}\n\
-echo "🚀 Starting Zeabur deployment on port $PORT"\n\
-echo "🌐 Zeabur assigned PORT: $PORT"\n\
-\n\
-# 顯示當前Nginx配置中的端口\n\
-echo "📋 Current Nginx config port:"\n\
-grep "listen" /etc/nginx/sites-available/default || echo "No listen directive found"\n\
-\n\
-# 更新Nginx配置中的端口\n\
-echo "🔧 Updating Nginx port from 80 to $PORT..."\n\
-sed -i "s/listen 80;/listen $PORT;/" /etc/nginx/sites-available/default\n\
-\n\
-# 確認端口修改成功\n\
-echo "✅ Updated Nginx config port:"\n\
-grep "listen" /etc/nginx/sites-available/default\n\
+echo "🚀 Starting 蟬說露營區管理系統 on Zeabur"\n\
+echo "🌐 Nginx listening on: 8080 (fixed)"\n\
+echo "🐍 FastAPI running on: 127.0.0.1:8000"\n\
 \n\
 # 測試Nginx配置語法\n\
 echo "🧪 Testing Nginx configuration..."\n\
@@ -135,8 +122,6 @@ echo "✅ Environment variables mapped successfully"\n\
 echo "📍 DB: $DB_HOST:$DB_PORT/$DB_NAME"\n\
 echo "👤 API User: $API_USERNAME"\n\
 echo "🏨 Hotel Code: $API_HOTEL_CODE"\n\
-echo "🌐 Nginx will listen on: $PORT"\n\
-echo "🐍 FastAPI will run on: 127.0.0.1:8000"\n\
 \n\
 # 啟動supervisor\n\
 echo "🚀 Starting Supervisor with all services..."\n\
@@ -146,9 +131,9 @@ exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf' > /start.s
 # 暴露端口 (Zeabur通常分配8080)
 EXPOSE 8080
 
-# 健康檢查 (使用動態端口腳本)
+# 健康檢查 (固定8080端口)
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD curl -f http://localhost:$(printenv PORT || echo 80)/health || exit 1
+    CMD curl -f http://localhost:8080/health || exit 1
 
 # 啟動命令
 CMD ["/start.sh"]
