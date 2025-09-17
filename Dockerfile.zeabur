@@ -80,8 +80,10 @@ COPY --from=frontend-builder /frontend/build/ /var/www/html/
 COPY nginx.zeabur.conf /etc/nginx/sites-available/default
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# 創建必要目錄
-RUN mkdir -p /app/logs /var/log/supervisor
+# 創建必要目錄和設置權限
+RUN mkdir -p /app/logs /var/log/supervisor && \
+    chmod -R 755 /var/www/html && \
+    chown -R www-data:www-data /var/www/html
 
 # 創建非root用戶
 RUN useradd --create-home --shell /bin/bash app_user && \
